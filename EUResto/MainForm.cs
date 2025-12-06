@@ -50,7 +50,7 @@ namespace EUResto
                 Location = new Point(padding, changeLevaLabel.Bottom + 18),
                 Size = new Size(labelWidth + inputWidth + 10, 36)
             };
-            calculateButton.Click += (_, _) => CalculateChange();
+            calculateButton.Click += (sender, args) => CalculateChange();
             Controls.Add(calculateButton);
 
             _statusLabel = new Label
@@ -66,9 +66,9 @@ namespace EUResto
             Controls.Add(keypadPanel);
 
             _activeInput = _amountDueEuro;
-            _amountDueEuro.Enter += (_, _) => _activeInput = _amountDueEuro;
-            _paidLeva.Enter += (_, _) => _activeInput = _paidLeva;
-            _paidEuro.Enter += (_, _) => _activeInput = _paidEuro;
+            _amountDueEuro.Enter += (sender, args) => _activeInput = _amountDueEuro;
+            _paidLeva.Enter += (sender, args) => _activeInput = _paidLeva;
+            _paidEuro.Enter += (sender, args) => _activeInput = _paidEuro;
         }
 
         private Label CreateLabel(string text, int x, int y, int width)
@@ -92,7 +92,7 @@ namespace EUResto
                 Width = width,
                 TextAlign = HorizontalAlignment.Right
             };
-            box.Enter += (_, _) => _activeInput = box;
+            box.Enter += (sender, args) => _activeInput = box;
             Controls.Add(box);
             return box;
         }
@@ -139,11 +139,11 @@ namespace EUResto
                 switch (buttons[i])
                 {
                     case "C":
-                        btn.Click += (_, _) => ClearActiveInput();
+                        btn.Click += (sender, args) => ClearActiveInput();
                         break;
                     default:
                         var value = buttons[i];
-                        btn.Click += (_, _) => AppendToActiveInput(value);
+                        btn.Click += (sender, args) => AppendToActiveInput(value);
                         break;
                 }
 
@@ -156,7 +156,7 @@ namespace EUResto
                 Size = new Size(230, 40),
                 Location = new Point(0, 240)
             };
-            calcBtn.Click += (_, _) => CalculateChange();
+            calcBtn.Click += (sender, args) => CalculateChange();
             panel.Controls.Add(calcBtn);
 
             return panel;
@@ -180,7 +180,10 @@ namespace EUResto
 
         private void ClearActiveInput()
         {
-            _activeInput ??= _amountDueEuro;
+            if (_activeInput == null)
+            {
+                _activeInput = _amountDueEuro;
+            }
             _activeInput.Clear();
         }
 
