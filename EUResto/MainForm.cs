@@ -79,10 +79,6 @@ namespace EUResto
             Controls.Add(keypadPanel);
 
             _activeInput = _amountDueEuro;
-            _amountDueEuro.Enter += (sender, args) => OnInputEnter(_amountDueEuro);
-            _paidLeva.Enter += (sender, args) => OnInputEnter(_paidLeva);
-            _paidEuro.Enter += (sender, args) => OnInputEnter(_paidEuro);
-
             _amountDueEuro.TextChanged += (sender, args) => CalculateChange();
             _paidLeva.TextChanged += (sender, args) => CalculateChange();
             _paidEuro.TextChanged += (sender, args) => CalculateChange();
@@ -112,6 +108,7 @@ namespace EUResto
                 TextAlign = HorizontalAlignment.Right
             };
             box.Enter += (sender, args) => OnInputEnter(box);
+            box.Click += (sender, args) => OnInputClick(box);
             Controls.Add(box);
             return box;
         }
@@ -201,6 +198,13 @@ namespace EUResto
                 return;
             }
 
+            if (_activeInput.SelectionLength > 0)
+            {
+                _activeInput.Text = value;
+                _activeInput.SelectionStart = _activeInput.Text.Length;
+                return;
+            }
+
             _activeInput.Text += value;
             _activeInput.SelectionStart = _activeInput.Text.Length;
         }
@@ -218,6 +222,16 @@ namespace EUResto
         }
 
         private void OnInputEnter(TextBox box)
+        {
+            ActivateAndSelectAll(box);
+        }
+
+        private void OnInputClick(TextBox box)
+        {
+            ActivateAndSelectAll(box);
+        }
+
+        private void ActivateAndSelectAll(TextBox box)
         {
             _activeInput = box;
             box.SelectAll();
