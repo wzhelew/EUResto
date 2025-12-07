@@ -27,12 +27,13 @@ namespace EUResto
 
             var padding = 12;
             var labelWidth = 160;
-            var amountWidth = 220;
+            var amountWidth = 180;
             var inputWidth = 160;
 
             var amountLabel = CreateLabel("Сметка в ЕВРО:", padding, padding, labelWidth);
             _amountDueEuro = CreateInput(amountLabel.Right + 10, amountLabel.Top, amountWidth);
             _amountDueEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
+            _amountDueEuro.BackColor = Color.FromArgb(255, 235, 240);
 
             var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 12, labelWidth);
             _paidEuro = CreateInput(paidEuroLabel.Right + 10, paidEuroLabel.Top, inputWidth);
