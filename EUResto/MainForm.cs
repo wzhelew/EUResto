@@ -216,17 +216,19 @@ namespace EUResto
 
             try
             {
-                using var fileStream = new FileStream(logoPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-                using var loadedImage = Image.FromStream(fileStream);
-                var imageCopy = new Bitmap(loadedImage);
-
-                return new PictureBox
+                using (var fileStream = new FileStream(logoPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var loadedImage = Image.FromStream(fileStream))
                 {
-                    Image = imageCopy,
-                    SizeMode = PictureBoxSizeMode.Zoom,
-                    Size = size,
-                    TabStop = false
-                };
+                    var imageCopy = new Bitmap(loadedImage);
+
+                    return new PictureBox
+                    {
+                        Image = imageCopy,
+                        SizeMode = PictureBoxSizeMode.Zoom,
+                        Size = size,
+                        TabStop = false
+                    };
+                }
             }
             catch
             {
@@ -260,6 +262,13 @@ namespace EUResto
             }
 
             if (value == "." && _activeInput.SelectionLength == 0 && _activeInput.Text.Contains("."))
+            {
+                _activeInput.Text = value;
+                _activeInput.SelectionStart = _activeInput.Text.Length;
+                return;
+            }
+
+            if (_activeInput.SelectionLength > 0)
             {
                 _activeInput.Text = value;
                 _activeInput.SelectionStart = _activeInput.Text.Length;
