@@ -35,7 +35,8 @@ namespace EUResto
             _amountDueEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
             _amountDueEuro.BackColor = Color.FromArgb(255, 235, 240);
 
-            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 12, labelWidth);
+            // Оставяме допълнително разстояние от около 1 см под "Сметка в ЕВРО" за полето "Платени ЕВРО".
+            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 38, labelWidth);
             _paidEuro = CreateInput(paidEuroLabel.Right + 10, paidEuroLabel.Top, inputWidth);
             _paidEuro.BackColor = Color.FromArgb(225, 239, 255);
 
