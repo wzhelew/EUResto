@@ -35,13 +35,16 @@ namespace EUResto
             _amountDueEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
             _amountDueEuro.BackColor = Color.FromArgb(255, 235, 240);
 
-            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 12, labelWidth);
+            // Оставяме допълнително разстояние от около 1 см под "Сметка в ЕВРО" за полето "Платени ЕВРО".
+            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 38, labelWidth);
             _paidEuro = CreateInput(paidEuroLabel.Right + 10, paidEuroLabel.Top, inputWidth);
             _paidEuro.BackColor = Color.FromArgb(225, 239, 255);
+            _paidEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
 
             var paidLevaLabel = CreateLabel("Платени ЛВ:", padding, paidEuroLabel.Bottom + 12, labelWidth);
             _paidLeva = CreateInput(paidLevaLabel.Right + 10, paidLevaLabel.Top, inputWidth);
             _paidLeva.BackColor = Color.FromArgb(225, 245, 225);
+            _paidLeva.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
 
             var changeEuroLabel = CreateLabel("Ресто в ЕВРО:", padding, paidLevaLabel.Bottom + 24, labelWidth);
             _changeEuro = CreateOutput(changeEuroLabel.Right + 10, changeEuroLabel.Top, inputWidth);
@@ -76,9 +79,9 @@ namespace EUResto
             Controls.Add(keypadPanel);
 
             _activeInput = _amountDueEuro;
-            _amountDueEuro.Enter += (sender, args) => _activeInput = _amountDueEuro;
-            _paidLeva.Enter += (sender, args) => _activeInput = _paidLeva;
-            _paidEuro.Enter += (sender, args) => _activeInput = _paidEuro;
+            _amountDueEuro.Enter += (sender, args) => OnInputEnter(_amountDueEuro);
+            _paidLeva.Enter += (sender, args) => OnInputEnter(_paidLeva);
+            _paidEuro.Enter += (sender, args) => OnInputEnter(_paidEuro);
 
             _amountDueEuro.TextChanged += (sender, args) => CalculateChange();
             _paidLeva.TextChanged += (sender, args) => CalculateChange();
@@ -108,7 +111,7 @@ namespace EUResto
                 Width = width,
                 TextAlign = HorizontalAlignment.Right
             };
-            box.Enter += (sender, args) => _activeInput = box;
+            box.Enter += (sender, args) => OnInputEnter(box);
             Controls.Add(box);
             return box;
         }
@@ -149,13 +152,14 @@ namespace EUResto
                 {
                     Text = buttons[i],
                     Size = new Size(70, 50),
-                    Location = new Point((i % 3) * 80, (i / 3) * 60)
+                    Location = new Point((i % 3) * 80, (i / 3) * 60),
+                    Font = new Font(FontFamily.GenericSansSerif, 12f, FontStyle.Bold)
                 };
 
                 switch (buttons[i])
                 {
                     case "C":
-                        btn.Click += (sender, args) => ClearActiveInput();
+                        btn.Click += (sender, args) => ClearAllFields();
                         break;
                     default:
                         var value = buttons[i];
@@ -185,8 +189,15 @@ namespace EUResto
                 _activeInput = _amountDueEuro;
             }
 
-            if (value == "." && _activeInput.Text.Contains("."))
+            if (value == "." && _activeInput.SelectionLength == 0 && _activeInput.Text.Contains("."))
             {
+                return;
+            }
+
+            if (_activeInput.SelectionLength > 0)
+            {
+                _activeInput.Text = value;
+                _activeInput.SelectionStart = _activeInput.Text.Length;
                 return;
             }
 
@@ -194,13 +205,22 @@ namespace EUResto
             _activeInput.SelectionStart = _activeInput.Text.Length;
         }
 
-        private void ClearActiveInput()
+        private void ClearAllFields()
         {
-            if (_activeInput == null)
-            {
-                _activeInput = _amountDueEuro;
-            }
-            _activeInput.Clear();
+            _amountDueEuro.Clear();
+            _paidEuro.Clear();
+            _paidLeva.Clear();
+            _changeEuro.Clear();
+            _changeLeva.Clear();
+            _activeInput = _amountDueEuro;
+            _amountDueEuro.Focus();
+            CalculateChange();
+        }
+
+        private void OnInputEnter(TextBox box)
+        {
+            _activeInput = box;
+            box.SelectAll();
         }
 
         private void CalculateChange()
