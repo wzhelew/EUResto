@@ -1,6 +1,7 @@
 using System;
-using System.Globalization;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
 using System.Windows.Forms;
 
 namespace EUResto
@@ -21,7 +22,7 @@ namespace EUResto
         {
             Text = "EU Resto";
             StartPosition = FormStartPosition.CenterScreen;
-            Size = new Size(650, 460);
+            ClientSize = new Size(650, 460);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
 
@@ -34,17 +35,20 @@ namespace EUResto
             _amountDueEuro = CreateInput(amountLabel.Right + 10, amountLabel.Top, amountWidth);
             _amountDueEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
             _amountDueEuro.BackColor = Color.FromArgb(255, 235, 240);
+            _amountDueEuro.TabIndex = 0;
 
             // Оставяме допълнително разстояние от около 1 см под "Сметка в ЕВРО" за полето "Платени ЕВРО".
             var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 38, labelWidth);
             _paidEuro = CreateInput(paidEuroLabel.Right + 10, paidEuroLabel.Top, inputWidth);
             _paidEuro.BackColor = Color.FromArgb(225, 239, 255);
             _paidEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
+            _paidEuro.TabIndex = 1;
 
             var paidLevaLabel = CreateLabel("Платени ЛВ:", padding, paidEuroLabel.Bottom + 12, labelWidth);
             _paidLeva = CreateInput(paidLevaLabel.Right + 10, paidLevaLabel.Top, inputWidth);
             _paidLeva.BackColor = Color.FromArgb(225, 245, 225);
             _paidLeva.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
+            _paidLeva.TabIndex = 2;
 
             var changeEuroLabel = CreateLabel("Ресто в ЕВРО:", padding, paidLevaLabel.Bottom + 24, labelWidth);
             _changeEuro = CreateOutput(changeEuroLabel.Right + 10, changeEuroLabel.Top, inputWidth);
@@ -60,7 +64,8 @@ namespace EUResto
             {
                 Text = "Изчисли",
                 Location = new Point(padding, changeLevaLabel.Bottom + 18),
-                Size = new Size(labelWidth + inputWidth + 10, 36)
+                Size = new Size(labelWidth + inputWidth + 10, 36),
+                TabStop = false
             };
             calculateButton.Click += (sender, args) => CalculateChange();
             Controls.Add(calculateButton);
@@ -77,6 +82,19 @@ namespace EUResto
             var keypadOffset = Math.Max(amountWidth, inputWidth);
             var keypadPanel = BuildKeypad(new Point(padding + labelWidth + keypadOffset + 50, padding));
             Controls.Add(keypadPanel);
+
+            var logo = CreateLogo(new Size(labelWidth + inputWidth + 10, 72));
+            if (logo != null)
+            {
+                logo.Location = new Point(padding, _statusLabel.Bottom + 10);
+                Controls.Add(logo);
+            }
+
+            var requiredHeight = Math.Max(keypadPanel.Bottom, (logo?.Bottom ?? _statusLabel.Bottom)) + padding;
+            if (requiredHeight > ClientSize.Height)
+            {
+                ClientSize = new Size(ClientSize.Width, requiredHeight);
+            }
 
             _activeInput = _amountDueEuro;
             _amountDueEuro.TextChanged += (sender, args) => CalculateChange();
@@ -121,7 +139,8 @@ namespace EUResto
                 Width = width,
                 TextAlign = HorizontalAlignment.Right,
                 ReadOnly = true,
-                BackColor = Color.WhiteSmoke
+                BackColor = Color.WhiteSmoke,
+                TabStop = false
             };
             Controls.Add(box);
             return box;
@@ -150,7 +169,8 @@ namespace EUResto
                     Text = buttons[i],
                     Size = new Size(70, 50),
                     Location = new Point((i % 3) * 80, (i / 3) * 60),
-                    Font = new Font(FontFamily.GenericSansSerif, 12f, FontStyle.Bold)
+                    Font = new Font(FontFamily.GenericSansSerif, 12f, FontStyle.Bold),
+                    TabStop = false
                 };
 
                 switch (buttons[i])
@@ -171,12 +191,59 @@ namespace EUResto
             {
                 Text = "=",
                 Size = new Size(230, 40),
-                Location = new Point(0, 240)
+                Location = new Point(0, 240),
+                TabStop = false
             };
             calcBtn.Click += (sender, args) => CalculateChange();
             panel.Controls.Add(calcBtn);
 
             return panel;
+        }
+
+        private PictureBox CreateLogo(Size size)
+        {
+            var logoPath = FindLogoPath();
+            if (logoPath == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                using var fileStream = new FileStream(logoPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using var loadedImage = Image.FromStream(fileStream);
+                var imageCopy = new Bitmap(loadedImage);
+
+                return new PictureBox
+                {
+                    Image = imageCopy,
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Size = size,
+                    TabStop = false
+                };
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string FindLogoPath()
+        {
+            var current = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+
+            while (current != null)
+            {
+                var candidate = Path.Combine(current.FullName, "delfi_logo.jpg");
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+
+                current = current.Parent;
+            }
+
+            return null;
         }
 
         private void AppendToActiveInput(string value)
@@ -187,11 +254,6 @@ namespace EUResto
             }
 
             if (value == "." && _activeInput.SelectionLength == 0 && _activeInput.Text.Contains("."))
-            {
-                return;
-            }
-
-            if (_activeInput.SelectionLength > 0)
             {
                 _activeInput.Text = value;
                 _activeInput.SelectionStart = _activeInput.Text.Length;
