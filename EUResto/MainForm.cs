@@ -22,14 +22,14 @@ namespace EUResto
         {
             Text = "EU Resto";
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(650, 460);
+            ClientSize = new Size(550, 460);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
 
             var padding = 12;
-            var labelWidth = 160;
-            var amountWidth = 160;
-            var inputWidth = 160;
+            var labelWidth = 120;
+            var amountWidth = 120;
+            var inputWidth = 120;
 
             var amountLabel = CreateLabel("Сметка в ЕВРО:", padding, padding, labelWidth);
             _amountDueEuro = CreateInput(amountLabel.Right + 10, amountLabel.Top, amountWidth);
@@ -84,7 +84,8 @@ namespace EUResto
             Controls.Add(_statusLabel);
 
             var keypadOffset = Math.Max(amountWidth, inputWidth);
-            var keypadPanel = BuildKeypad(new Point(padding + labelWidth + keypadOffset + 50, padding));
+            var keypadPanelX = Math.Max(padding + labelWidth + keypadOffset + 20, ClientSize.Width - padding - 240);
+            var keypadPanel = BuildKeypad(new Point(keypadPanelX, padding));
             Controls.Add(keypadPanel);
 
             var requiredHeight = Math.Max(keypadPanel.Bottom, _statusLabel.Bottom) + padding;
