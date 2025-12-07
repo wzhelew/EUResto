@@ -263,6 +263,15 @@ namespace EUResto
 
             if (value == "." && _activeInput.SelectionLength == 0 && _activeInput.Text.Contains("."))
             {
+                _activeInput.Text = value;
+                _activeInput.SelectionStart = _activeInput.Text.Length;
+                return;
+            }
+
+            if (_activeInput.SelectionLength > 0)
+            {
+                _activeInput.Text = value;
+                _activeInput.SelectionStart = _activeInput.Text.Length;
                 return;
             }
 
