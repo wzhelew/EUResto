@@ -87,14 +87,7 @@ namespace EUResto
             var keypadPanel = BuildKeypad(new Point(padding + labelWidth + keypadOffset + 50, padding));
             Controls.Add(keypadPanel);
 
-            var logo = CreateLogo(new Size(labelWidth + inputWidth + 10, 72));
-            if (logo != null)
-            {
-                logo.Location = new Point(padding, _statusLabel.Bottom + 10);
-                Controls.Add(logo);
-            }
-
-            var requiredHeight = Math.Max(keypadPanel.Bottom, (logo?.Bottom ?? _statusLabel.Bottom)) + padding;
+            var requiredHeight = Math.Max(keypadPanel.Bottom, _statusLabel.Bottom) + padding;
             if (requiredHeight > ClientSize.Height)
             {
                 ClientSize = new Size(ClientSize.Width, requiredHeight);
@@ -193,15 +186,17 @@ namespace EUResto
                 panel.Controls.Add(btn);
             }
 
-            var calcBtn = new Button
+            var logo = CreateLogo(new Size(230, 48));
+            if (logo != null)
             {
-                Text = "=",
-                Size = new Size(230, 40),
-                Location = new Point(0, 240),
-                TabStop = false
-            };
-            calcBtn.Click += (sender, args) => CalculateChange();
-            panel.Controls.Add(calcBtn);
+                logo.Location = new Point(0, 240);
+                panel.Controls.Add(logo);
+                panel.Size = new Size(panel.Width, logo.Bottom);
+            }
+            else
+            {
+                panel.Size = new Size(panel.Width, 240);
+            }
 
             return panel;
         }
