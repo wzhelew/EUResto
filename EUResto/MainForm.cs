@@ -69,6 +69,12 @@ namespace EUResto
             _amountDueEuro.Enter += (sender, args) => _activeInput = _amountDueEuro;
             _paidLeva.Enter += (sender, args) => _activeInput = _paidLeva;
             _paidEuro.Enter += (sender, args) => _activeInput = _paidEuro;
+
+            _amountDueEuro.TextChanged += (sender, args) => CalculateChange();
+            _paidLeva.TextChanged += (sender, args) => CalculateChange();
+            _paidEuro.TextChanged += (sender, args) => CalculateChange();
+
+            CalculateChange();
         }
 
         private Label CreateLabel(string text, int x, int y, int width)
