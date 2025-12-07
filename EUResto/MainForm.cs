@@ -39,10 +39,12 @@ namespace EUResto
             var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 38, labelWidth);
             _paidEuro = CreateInput(paidEuroLabel.Right + 10, paidEuroLabel.Top, inputWidth);
             _paidEuro.BackColor = Color.FromArgb(225, 239, 255);
+            _paidEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
 
             var paidLevaLabel = CreateLabel("Платени ЛВ:", padding, paidEuroLabel.Bottom + 12, labelWidth);
             _paidLeva = CreateInput(paidLevaLabel.Right + 10, paidLevaLabel.Top, inputWidth);
             _paidLeva.BackColor = Color.FromArgb(225, 245, 225);
+            _paidLeva.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
 
             var changeEuroLabel = CreateLabel("Ресто в ЕВРО:", padding, paidLevaLabel.Bottom + 24, labelWidth);
             _changeEuro = CreateOutput(changeEuroLabel.Right + 10, changeEuroLabel.Top, inputWidth);
@@ -187,8 +189,15 @@ namespace EUResto
                 _activeInput = _amountDueEuro;
             }
 
-            if (value == "." && _activeInput.Text.Contains("."))
+            if (value == "." && _activeInput.SelectionLength == 0 && _activeInput.Text.Contains("."))
             {
+                return;
+            }
+
+            if (_activeInput.SelectionLength > 0)
+            {
+                _activeInput.Text = value;
+                _activeInput.SelectionStart = _activeInput.Text.Length;
                 return;
             }
 
