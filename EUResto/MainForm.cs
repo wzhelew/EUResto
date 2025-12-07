@@ -27,22 +27,30 @@ namespace EUResto
 
             var padding = 12;
             var labelWidth = 160;
+            var amountWidth = 220;
             var inputWidth = 160;
 
             var amountLabel = CreateLabel("Сметка в ЕВРО:", padding, padding, labelWidth);
-            _amountDueEuro = CreateInput(amountLabel.Right + 10, amountLabel.Top, inputWidth);
+            _amountDueEuro = CreateInput(amountLabel.Right + 10, amountLabel.Top, amountWidth);
+            _amountDueEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
 
-            var paidLevaLabel = CreateLabel("Платени ЛВ:", padding, amountLabel.Bottom + 12, labelWidth);
-            _paidLeva = CreateInput(paidLevaLabel.Right + 10, paidLevaLabel.Top, inputWidth);
-
-            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, paidLevaLabel.Bottom + 12, labelWidth);
+            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 12, labelWidth);
             _paidEuro = CreateInput(paidEuroLabel.Right + 10, paidEuroLabel.Top, inputWidth);
+            _paidEuro.BackColor = Color.FromArgb(225, 239, 255);
 
-            var changeEuroLabel = CreateLabel("Ресто в ЕВРО:", padding, paidEuroLabel.Bottom + 24, labelWidth);
+            var paidLevaLabel = CreateLabel("Платени ЛВ:", padding, paidEuroLabel.Bottom + 12, labelWidth);
+            _paidLeva = CreateInput(paidLevaLabel.Right + 10, paidLevaLabel.Top, inputWidth);
+            _paidLeva.BackColor = Color.FromArgb(225, 245, 225);
+
+            var changeEuroLabel = CreateLabel("Ресто в ЕВРО:", padding, paidLevaLabel.Bottom + 24, labelWidth);
             _changeEuro = CreateOutput(changeEuroLabel.Right + 10, changeEuroLabel.Top, inputWidth);
+            _changeEuro.BackColor = Color.FromArgb(225, 239, 255);
+            _changeEuro.Font = new Font(FontFamily.GenericSansSerif, 10f, FontStyle.Bold);
 
             var changeLevaLabel = CreateLabel("Ресто в ЛВ:", padding, changeEuroLabel.Bottom + 12, labelWidth);
             _changeLeva = CreateOutput(changeLevaLabel.Right + 10, changeLevaLabel.Top, inputWidth);
+            _changeLeva.BackColor = Color.FromArgb(225, 245, 225);
+            _changeLeva.Font = new Font(FontFamily.GenericSansSerif, 10f, FontStyle.Bold);
 
             var calculateButton = new Button
             {
@@ -62,7 +70,8 @@ namespace EUResto
             };
             Controls.Add(_statusLabel);
 
-            var keypadPanel = BuildKeypad(new Point(amountLabel.Right + inputWidth + 40, padding));
+            var keypadOffset = Math.Max(amountWidth, inputWidth);
+            var keypadPanel = BuildKeypad(new Point(padding + labelWidth + keypadOffset + 50, padding));
             Controls.Add(keypadPanel);
 
             _activeInput = _amountDueEuro;
