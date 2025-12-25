@@ -1,6 +1,7 @@
 using System;
-using System.Globalization;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
 using System.Windows.Forms;
 
 namespace EUResto
@@ -10,6 +11,7 @@ namespace EUResto
         private const double ExchangeRate = 1.95583;
 
         private readonly TextBox _amountDueEuro;
+        private readonly TextBox _amountDueLeva;
         private readonly TextBox _paidLeva;
         private readonly TextBox _paidEuro;
         private readonly TextBox _changeEuro;
@@ -21,27 +23,40 @@ namespace EUResto
         {
             Text = "EU Resto";
             StartPosition = FormStartPosition.CenterScreen;
-            Size = new Size(650, 460);
+            ClientSize = new Size(550, 460);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
 
             var padding = 12;
-            var labelWidth = 160;
-            var amountWidth = 180;
-            var inputWidth = 160;
+            var labelWidth = 150;
+            var amountWidth = 120;
+            var inputWidth = 120;
 
             var amountLabel = CreateLabel("Сметка в ЕВРО:", padding, padding, labelWidth);
             _amountDueEuro = CreateInput(amountLabel.Right + 10, amountLabel.Top, amountWidth);
             _amountDueEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
             _amountDueEuro.BackColor = Color.FromArgb(255, 235, 240);
+            _amountDueEuro.TabIndex = 0;
+            _amountDueEuro.TabStop = true;
 
-            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 12, labelWidth);
+            var amountLevaLabel = CreateLabel("Сума в ЛВ:", padding, amountLabel.Bottom + 12, labelWidth);
+            _amountDueLeva = CreateOutput(amountLevaLabel.Right + 10, amountLevaLabel.Top, inputWidth);
+            _amountDueLeva.Font = new Font(FontFamily.GenericSansSerif, 10f, FontStyle.Bold);
+
+            // Оставяме допълнително разстояние от около 1 см под стойността за сумата в ЛВ за полето "Платени ЕВРО".
+            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLevaLabel.Bottom + 24, labelWidth);
             _paidEuro = CreateInput(paidEuroLabel.Right + 10, paidEuroLabel.Top, inputWidth);
             _paidEuro.BackColor = Color.FromArgb(225, 239, 255);
+            _paidEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
+            _paidEuro.TabIndex = 1;
+            _paidEuro.TabStop = true;
 
             var paidLevaLabel = CreateLabel("Платени ЛВ:", padding, paidEuroLabel.Bottom + 12, labelWidth);
             _paidLeva = CreateInput(paidLevaLabel.Right + 10, paidLevaLabel.Top, inputWidth);
             _paidLeva.BackColor = Color.FromArgb(225, 245, 225);
+            _paidLeva.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
+            _paidLeva.TabIndex = 2;
+            _paidLeva.TabStop = true;
 
             var changeEuroLabel = CreateLabel("Ресто в ЕВРО:", padding, paidLevaLabel.Bottom + 24, labelWidth);
             _changeEuro = CreateOutput(changeEuroLabel.Right + 10, changeEuroLabel.Top, inputWidth);
@@ -57,7 +72,8 @@ namespace EUResto
             {
                 Text = "Изчисли",
                 Location = new Point(padding, changeLevaLabel.Bottom + 18),
-                Size = new Size(labelWidth + inputWidth + 10, 36)
+                Size = new Size(labelWidth + inputWidth + 10, 36),
+                TabStop = false
             };
             calculateButton.Click += (sender, args) => CalculateChange();
             Controls.Add(calculateButton);
@@ -67,19 +83,21 @@ namespace EUResto
                 Text = "Курс: 1 EUR = 1.95583 BGN",
                 AutoSize = true,
                 Location = new Point(padding, calculateButton.Bottom + 8),
-                ForeColor = Color.Gray
+                ForeColor = Color.Gray,
+                TabStop = false
             };
             Controls.Add(_statusLabel);
 
             var keypadOffset = Math.Max(amountWidth, inputWidth);
-            var keypadPanel = BuildKeypad(new Point(padding + labelWidth + keypadOffset + 50, padding));
+            var keypadPanelX = Math.Max(padding + labelWidth + keypadOffset + 20, ClientSize.Width - padding - 240);
+            var keypadPanel = BuildKeypad(new Point(keypadPanelX, padding));
             Controls.Add(keypadPanel);
 
-            _activeInput = _amountDueEuro;
-            _amountDueEuro.Enter += (sender, args) => _activeInput = _amountDueEuro;
-            _paidLeva.Enter += (sender, args) => _activeInput = _paidLeva;
-            _paidEuro.Enter += (sender, args) => _activeInput = _paidEuro;
+            var bottomMargin = 10;
+            var requiredHeight = Math.Max(keypadPanel.Bottom, _statusLabel.Bottom) + bottomMargin;
+            ClientSize = new Size(ClientSize.Width, requiredHeight);
 
+            _activeInput = _amountDueEuro;
             _amountDueEuro.TextChanged += (sender, args) => CalculateChange();
             _paidLeva.TextChanged += (sender, args) => CalculateChange();
             _paidEuro.TextChanged += (sender, args) => CalculateChange();
@@ -94,7 +112,8 @@ namespace EUResto
                 Text = text,
                 Location = new Point(x, y + 4),
                 Width = width,
-                AutoSize = false
+                AutoSize = false,
+                TabStop = false
             };
             Controls.Add(label);
             return label;
@@ -108,7 +127,8 @@ namespace EUResto
                 Width = width,
                 TextAlign = HorizontalAlignment.Right
             };
-            box.Enter += (sender, args) => _activeInput = box;
+            box.Enter += (sender, args) => OnInputEnter(box);
+            box.Click += (sender, args) => OnInputClick(box);
             Controls.Add(box);
             return box;
         }
@@ -121,7 +141,8 @@ namespace EUResto
                 Width = width,
                 TextAlign = HorizontalAlignment.Right,
                 ReadOnly = true,
-                BackColor = Color.WhiteSmoke
+                BackColor = Color.WhiteSmoke,
+                TabStop = false
             };
             Controls.Add(box);
             return box;
@@ -132,7 +153,8 @@ namespace EUResto
             var panel = new Panel
             {
                 Location = origin,
-                Size = new Size(240, 300)
+                Size = new Size(240, 300),
+                TabStop = false
             };
 
             var buttons = new[]
@@ -149,13 +171,15 @@ namespace EUResto
                 {
                     Text = buttons[i],
                     Size = new Size(70, 50),
-                    Location = new Point((i % 3) * 80, (i / 3) * 60)
+                    Location = new Point((i % 3) * 80, (i / 3) * 60),
+                    Font = new Font(FontFamily.GenericSansSerif, 12f, FontStyle.Bold),
+                    TabStop = false
                 };
 
                 switch (buttons[i])
                 {
                     case "C":
-                        btn.Click += (sender, args) => ClearActiveInput();
+                        btn.Click += (sender, args) => ClearAllFields();
                         break;
                     default:
                         var value = buttons[i];
@@ -166,16 +190,67 @@ namespace EUResto
                 panel.Controls.Add(btn);
             }
 
-            var calcBtn = new Button
+            var logo = CreateLogo(new Size(230, 48));
+            if (logo != null)
             {
-                Text = "=",
-                Size = new Size(230, 40),
-                Location = new Point(0, 240)
-            };
-            calcBtn.Click += (sender, args) => CalculateChange();
-            panel.Controls.Add(calcBtn);
+                logo.Location = new Point(0, 240);
+                panel.Controls.Add(logo);
+                panel.Size = new Size(panel.Width, logo.Bottom);
+            }
+            else
+            {
+                panel.Size = new Size(panel.Width, 240);
+            }
 
             return panel;
+        }
+
+        private PictureBox CreateLogo(Size size)
+        {
+            var logoPath = FindLogoPath();
+            if (logoPath == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                using (var fileStream = new FileStream(logoPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var loadedImage = Image.FromStream(fileStream))
+                {
+                    var imageCopy = new Bitmap(loadedImage);
+
+                    return new PictureBox
+                    {
+                        Image = imageCopy,
+                        SizeMode = PictureBoxSizeMode.Zoom,
+                        Size = size,
+                        TabStop = false
+                    };
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string FindLogoPath()
+        {
+            var current = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+
+            while (current != null)
+            {
+                var candidate = Path.Combine(current.FullName, "delfi_logo.jpg");
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+
+                current = current.Parent;
+            }
+
+            return null;
         }
 
         private void AppendToActiveInput(string value)
@@ -185,8 +260,15 @@ namespace EUResto
                 _activeInput = _amountDueEuro;
             }
 
-            if (value == "." && _activeInput.Text.Contains("."))
+            if (value == "." && _activeInput.SelectionLength == 0 && _activeInput.Text.Contains("."))
             {
+                return;
+            }
+
+            if (_activeInput.SelectionLength > 0)
+            {
+                _activeInput.Text = value;
+                _activeInput.SelectionStart = _activeInput.Text.Length;
                 return;
             }
 
@@ -194,13 +276,32 @@ namespace EUResto
             _activeInput.SelectionStart = _activeInput.Text.Length;
         }
 
-        private void ClearActiveInput()
+        private void ClearAllFields()
         {
-            if (_activeInput == null)
-            {
-                _activeInput = _amountDueEuro;
-            }
-            _activeInput.Clear();
+            _amountDueEuro.Clear();
+            _paidEuro.Clear();
+            _paidLeva.Clear();
+            _changeEuro.Clear();
+            _changeLeva.Clear();
+            _activeInput = _amountDueEuro;
+            _amountDueEuro.Focus();
+            CalculateChange();
+        }
+
+        private void OnInputEnter(TextBox box)
+        {
+            ActivateAndSelectAll(box);
+        }
+
+        private void OnInputClick(TextBox box)
+        {
+            ActivateAndSelectAll(box);
+        }
+
+        private void ActivateAndSelectAll(TextBox box)
+        {
+            _activeInput = box;
+            box.SelectAll();
         }
 
         private void CalculateChange()
@@ -213,6 +314,9 @@ namespace EUResto
             var totalPaidEuro = paidEuro + paidEuroFromLeva;
             var changeEuro = totalPaidEuro - amountDue;
             var changeLeva = changeEuro * ExchangeRate;
+
+            var amountDueLeva = amountDue * ExchangeRate;
+            _amountDueLeva.Text = amountDueLeva.ToString("F2", CultureInfo.InvariantCulture);
 
             _changeEuro.Text = changeEuro.ToString("F2", CultureInfo.InvariantCulture);
             _changeLeva.Text = changeLeva.ToString("F2", CultureInfo.InvariantCulture);
