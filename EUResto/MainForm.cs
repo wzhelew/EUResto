@@ -27,7 +27,7 @@ namespace EUResto
             MaximizeBox = false;
 
             var padding = 12;
-            var labelWidth = 120;
+            var labelWidth = 150;
             var amountWidth = 120;
             var inputWidth = 120;
 
@@ -88,11 +88,9 @@ namespace EUResto
             var keypadPanel = BuildKeypad(new Point(keypadPanelX, padding));
             Controls.Add(keypadPanel);
 
-            var requiredHeight = Math.Max(keypadPanel.Bottom, _statusLabel.Bottom) + padding;
-            if (requiredHeight > ClientSize.Height)
-            {
-                ClientSize = new Size(ClientSize.Width, requiredHeight);
-            }
+            var bottomMargin = 10;
+            var requiredHeight = Math.Max(keypadPanel.Bottom, _statusLabel.Bottom) + bottomMargin;
+            ClientSize = new Size(ClientSize.Width, requiredHeight);
 
             _activeInput = _amountDueEuro;
             _amountDueEuro.TextChanged += (sender, args) => CalculateChange();
@@ -259,15 +257,6 @@ namespace EUResto
 
             if (value == "." && _activeInput.SelectionLength == 0 && _activeInput.Text.Contains("."))
             {
-                _activeInput.Text = value;
-                _activeInput.SelectionStart = _activeInput.Text.Length;
-                return;
-            }
-
-            if (_activeInput.SelectionLength > 0)
-            {
-                _activeInput.Text = value;
-                _activeInput.SelectionStart = _activeInput.Text.Length;
                 return;
             }
 
