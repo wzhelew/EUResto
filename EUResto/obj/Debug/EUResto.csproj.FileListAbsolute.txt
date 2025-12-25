@@ -1,0 +1,6 @@
+C:\Users\user\Source\Repos\EUResto\EUResto\obj\Debug\EUResto.csproj.AssemblyReference.cache
+C:\Users\user\Source\Repos\EUResto\EUResto\obj\Debug\EUResto.csproj.CoreCompileInputs.cache
+C:\Users\user\Source\Repos\EUResto\EUResto\bin\Debug\EUResto.exe
+C:\Users\user\Source\Repos\EUResto\EUResto\bin\Debug\EUResto.pdb
+C:\Users\user\Source\Repos\EUResto\EUResto\obj\Debug\EUResto.exe
+C:\Users\user\Source\Repos\EUResto\EUResto\obj\Debug\EUResto.pdb
