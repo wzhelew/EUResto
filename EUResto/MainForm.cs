@@ -11,6 +11,7 @@ namespace EUResto
         private const double ExchangeRate = 1.95583;
 
         private readonly TextBox _amountDueEuro;
+        private readonly TextBox _amountDueLeva;
         private readonly TextBox _paidLeva;
         private readonly TextBox _paidEuro;
         private readonly TextBox _changeEuro;
@@ -38,8 +39,12 @@ namespace EUResto
             _amountDueEuro.TabIndex = 0;
             _amountDueEuro.TabStop = true;
 
-            // Оставяме допълнително разстояние от около 1 см под "Сметка в ЕВРО" за полето "Платени ЕВРО".
-            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLabel.Bottom + 38, labelWidth);
+            var amountLevaLabel = CreateLabel("Сума в ЛВ:", padding, amountLabel.Bottom + 12, labelWidth);
+            _amountDueLeva = CreateOutput(amountLevaLabel.Right + 10, amountLevaLabel.Top, inputWidth);
+            _amountDueLeva.Font = new Font(FontFamily.GenericSansSerif, 10f, FontStyle.Bold);
+
+            // Оставяме допълнително разстояние от около 1 см под стойността за сумата в ЛВ за полето "Платени ЕВРО".
+            var paidEuroLabel = CreateLabel("Платени ЕВРО:", padding, amountLevaLabel.Bottom + 24, labelWidth);
             _paidEuro = CreateInput(paidEuroLabel.Right + 10, paidEuroLabel.Top, inputWidth);
             _paidEuro.BackColor = Color.FromArgb(225, 239, 255);
             _paidEuro.Font = new Font(FontFamily.GenericSansSerif, 11f, FontStyle.Bold);
@@ -257,6 +262,8 @@ namespace EUResto
 
             if (value == "." && _activeInput.SelectionLength == 0 && _activeInput.Text.Contains("."))
             {
+                _activeInput.Text = value;
+                _activeInput.SelectionStart = _activeInput.Text.Length;
                 return;
             }
 
@@ -309,6 +316,9 @@ namespace EUResto
             var totalPaidEuro = paidEuro + paidEuroFromLeva;
             var changeEuro = totalPaidEuro - amountDue;
             var changeLeva = changeEuro * ExchangeRate;
+
+            var amountDueLeva = amountDue * ExchangeRate;
+            _amountDueLeva.Text = amountDueLeva.ToString("F2", CultureInfo.InvariantCulture);
 
             _changeEuro.Text = changeEuro.ToString("F2", CultureInfo.InvariantCulture);
             _changeLeva.Text = changeLeva.ToString("F2", CultureInfo.InvariantCulture);
